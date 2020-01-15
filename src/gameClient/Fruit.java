@@ -25,6 +25,7 @@ public class Fruit {
 	public Fruit(String jsonSTR) {
 		
 		try {
+			int noff;
 			JSONObject fruit = new JSONObject(jsonSTR);
 			fruit=fruit.getJSONObject("Fruit");
 			this.type=fruit.getInt("type");
