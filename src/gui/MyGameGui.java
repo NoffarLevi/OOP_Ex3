@@ -3,82 +3,121 @@ package gui;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Map.Entry;
+import java.awt.Component;
+import java.awt.FlowLayout;
 
+import javax.imageio.ImageIO;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 
+import Server.Game_Server;
+import Server.game_service;
 import algorithms.Graph_Algo;
 import dataStructure.DGraph;
 import dataStructure.edge_data;
 import dataStructure.graph;
 import dataStructure.node_data;
+import gameClient.Arena;
+import gameClient.ClientRun;
+import gameClient.Fruit;
+import gameClient.Robot;
 import utils.Point3D;
 
-public class MyGameGui extends JFrame{
+public class MyGameGui extends JFrame implements MouseListener{
 
-	private graph g;
-	private Graph_Algo Galgo;
-	private int MC;
+	private Arena arena;
+	private ClientRun cRun;
+	double xMax, xMin, yMax, yMin;
+	private BufferedImage apple, banana, minion;
+	int xRobot,yRobot,xDest,yDest;
+	node_data dest;
+	private boolean manGame;
+	private int ROBOT_ID, NODE_DEST;
 
-	public MyGameGui() {	
-		g = new DGraph();
-		Galgo = new Graph_Algo();
-		Galgo.init(g);
-		MC=0;
-		initGUI();
-	}
+	public MyGameGui() {}
 
-	public MyGameGui(graph g)
+	public MyGameGui(Arena a, boolean flag)
 	{	
-		System.out.println(g.getV());
-		for (node_data n : g.getV()) {
-			System.out.println("l "+n.getLocation());}
-		this.g=g;
-		Galgo = new Graph_Algo();
-		Galgo.init(g);
-		MC=g.getMC();
-		initGUI();
-	}
+		arena = a;
+		manGame = flag;
 
-	public MyGameGui(String file) {
-		this.g=null;
-		Galgo = new Graph_Algo();
-		Galgo.init(file);
-		this.g=Galgo.copy();
-		MC=g.getMC();
+		try {
+			apple = ImageIO.read(new File("apple.png"));
+			banana = ImageIO.read(new File("banana.png"));
+			minion = ImageIO.read(new File("minion.png"));
+
+
+		}catch(Exception e) {
+			System.out.println("Could not read file!");
+			e.printStackTrace();
+		} 
+
 		initGUI();
+
 	}
 
 	private void initGUI() 
 	{
-		this.setSize(1000,800);
+		this.setSize(1100,800);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
+
+		if(manGame) {
+			System.out.println("isManual");
+			this.addMouseListener(this);
+		}
+
 	}
-	
+
 	public void paint(Graphics g)
 	{
-		super.paint(g);
-		
-		scalePoints(this.g);
-		
-		for (node_data n : this.g.getV()) 
+		BufferedImage BImage = new BufferedImage(1100, 800,BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2d = BImage.createGraphics();
+
+		g2d.setBackground(new Color(240,240,240));
+		g2d.clearRect(0, 0, 1100, 800);
+
+		drawGraph(g2d);
+		drawTime(g2d);
+		drawFruit(g2d);
+		drawRobots(g2d);
+
+		Graphics2D g2dComp = (Graphics2D) g;
+		g2dComp.drawImage(BImage, null, 0, 0);
+
+
+
+	}
+
+	private void drawGraph(Graphics2D g) {
+
+		scalePoints(arena.getGraph());
+
+		for (node_data n : arena.getGraph().getV()) 
 		{
 			g.setColor(Color.BLUE);
 			g.fillOval(n.getLocation2().ix()-5,n.getLocation2().iy()-10, 10, 10);
 			g.setFont(new Font("Arial", Font.BOLD, 14));
 			g.drawString(n.getKey()+"", n.getLocation2().ix()+20, n.getLocation2().iy());
 
-			if(this.g.getE(n.getKey())!= null) {
-				for (edge_data e : this.g.getE(n.getKey())) {
+			if(arena.getGraph().getE(n.getKey())!= null) {
+				for (edge_data e : arena.getGraph().getE(n.getKey())) {
 
-					node_data des = this.g.getNode(e.getDest());
+					node_data des = arena.getGraph().getNode(e.getDest());
 					g.setColor(Color.RED);
 					g.drawLine(n.getLocation2().ix(), n.getLocation2().iy(), des.getLocation2().ix(), des.getLocation2().iy());
-
-//					int midX=(n.getLocation2().ix()+des.getLocation2().ix())/2;
-//					int midY=(n.getLocation2().iy()+des.getLocation2().iy())/2;
-//					g.setFont(new Font("Arial", Font.BOLD, 15));
-//					g.drawString(e.getWeight()+"", midX, midY);
 
 					g.setColor(Color.YELLOW);
 
@@ -96,28 +135,64 @@ public class MyGameGui extends JFrame{
 			}
 		}
 	}
-	
+
+	private void drawFruit(Graphics2D g) {
+		//paint fruits
+		for (Fruit f : arena.getFruits()) {
+			double x= scale(f.getLocation().x(),xMin ,xMax,30,900);
+			double y= scale(f.getLocation().y(),yMax ,yMin,50,700);
+
+			if(f.getType()==-1) {
+				g.drawImage(apple, (int)x-7, (int)y-10, this);
+
+			}
+			else {
+
+				g.drawImage(banana, (int)x-7, (int)y-10,this);
+
+			}
+		}
+	}
+
+	private void drawRobots(Graphics2D g) {
+
+		//paint robots
+		for (Entry<Integer, Robot> r : arena.getRobots().entrySet()) 	
+		{
+			double x= scale(r.getValue().getLocation().x(),xMin ,xMax,30,900);
+			double y= scale(r.getValue().getLocation().y(),yMax ,yMin,50,700);
+
+			//			g.setColor(Color.BLACK);
+			//			g.drawOval((int)x-8,(int)y-12, 15, 15);
+			g.drawImage(minion, (int)x-8, (int)y-12,this);
+
+		}
+	}
+
+	private void drawTime(Graphics2D g) {
+
+		//paint time
+		g.setColor(Color.BLACK);
+		g.setFont(new Font("Arial",Font.BOLD,15));
+		g.drawString("Time: "+arena.getGame().timeToEnd()/1000,50 , 70);
+	}
 
 	public void scalePoints(graph g) 
 	{
-		
-		double xMax=getMaxNodeX(g);
-		double xMin=getMinNodeX(g);
-		double yMax=getMaxNodeY(g);
-		double yMin=getMinNodeY(g);
-		
+		xMax=getMaxNodeX(g);
+		xMin=getMinNodeX(g);
+		yMax=getMaxNodeY(g);
+		yMin=getMinNodeY(g);
+
 		for (node_data n : g.getV()) 
 		{
-			
-		double x=scale(n.getLocation().x(),xMin ,xMax,50,700);
-		double y=scale(n.getLocation().y(),yMax, yMin,50,700);
-		
-		Point3D p = new Point3D(x,y);
-		
-		n.setLocation2(p);	
-		
+			double x=scale(n.getLocation().x(),xMin ,xMax,30,900);
+			double y=scale(n.getLocation().y(),yMax, yMin,50,700);
+
+			Point3D p = new Point3D(x,y);
+
+			n.setLocation2(p);	
 		}
-		
 	}
 	/**
 	 * 
@@ -134,10 +209,10 @@ public class MyGameGui extends JFrame{
 		double res = ((data - r_min) / (r_max-r_min)) * (t_max - t_min) + t_min;
 		return res;
 	}
-	
+
 	public double getMaxNodeX(graph g) {
-	double max=Double.NEGATIVE_INFINITY;
-		for (node_data n : this.g.getV()) {
+		double max=Double.NEGATIVE_INFINITY;
+		for (node_data n : arena.getGraph().getV()) {
 			if(n.getLocation().x()>max) {
 				max=n.getLocation().x();
 			}
@@ -145,20 +220,20 @@ public class MyGameGui extends JFrame{
 		return max;
 	}
 
-public double getMinNodeX(graph g) {
-	
-	double min=Double.POSITIVE_INFINITY;
-		for (node_data n : this.g.getV()) {
+	public double getMinNodeX(graph g) {
+
+		double min=Double.POSITIVE_INFINITY;
+		for (node_data n : arena.getGraph().getV()) {
 			if(n.getLocation().x()<min) {
 				min=n.getLocation().x();
 			}
 		}		
 		return min;
 	}
-public double getMaxNodeY(graph g) {
-	
-	double max=Double.NEGATIVE_INFINITY;
-		for (node_data n : this.g.getV()) {
+	public double getMaxNodeY(graph g) {
+
+		double max=Double.NEGATIVE_INFINITY;
+		for (node_data n : arena.getGraph().getV()) {
 			if(n.getLocation().y()>max) {
 				max=n.getLocation().y();
 			}
@@ -166,15 +241,108 @@ public double getMaxNodeY(graph g) {
 		return max;
 	}
 
-public double getMinNodeY(graph g) {
-	
-	double min=Double.POSITIVE_INFINITY;
-		for (node_data n : this.g.getV()) {
+	public double getMinNodeY(graph g) {
+
+		double min=Double.POSITIVE_INFINITY;
+		for (node_data n : arena.getGraph().getV()) {
 			if(n.getLocation().y()<min) {
 				min=n.getLocation().y();
 			}
 		}		
 		return min;
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+
+
+		if(!arena.getGame().isRunning())
+			{return;}
+		
+			xRobot = e.getX();  //x of robot
+			yRobot = e.getY();
+
+			Point3D p = new Point3D(xRobot,yRobot);
+			if(e.getClickCount() == 1) {
+				node_data node = findNodePosOnGraph(p);
+
+				if(node != null) {
+					NODE_DEST = node.getKey();
+
+					try {
+
+						arena.getGame().chooseNextEdge(ROBOT_ID,NODE_DEST);
+						NODE_DEST = -1;
+
+
+					}catch(Exception error) {
+						error.printStackTrace();
+					}
+				}
+
+			}	
+
+			if (e.getClickCount() == 2) {
+				Robot r = findRbotPosOnGraph(p);
+				if (r != null) {
+					ROBOT_ID = r.getID();
+				}
+			}
+		}
+
+	private node_data findNodePosOnGraph(Point3D p) {
+
+		for (node_data n :arena.getGraph().getV()) {
+			double dist = n.getLocation2().distance2D(p);
+			if(dist>= 0 && dist <= 20) {
+				return n;
+			}
+		}
+		return null;
+	}
+
+	private Robot findRbotPosOnGraph(Point3D p){
+
+		for (Entry<Integer, Robot> ro : arena.getRobots().entrySet()) {
+			double originalX = ro.getValue().getLocation().x();
+			double originalY = ro.getValue().getLocation().y();
+
+			double scaleX = scale(originalX, xMin ,xMax,30,900);
+			double scaleY = scale(originalY, yMax, yMin,50,700);
+
+			Point3D p1 = new Point3D(scaleX, scaleY);
+			double dist = p1.distance2D(p);
+
+			if(dist>= 0 && dist <= 20)
+			{
+				return ro.getValue();
+			}
+		}
+
+		return null;
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

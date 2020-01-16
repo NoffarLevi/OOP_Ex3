@@ -19,8 +19,12 @@ public interface graph {
 	 * Note: this method should run in O(1) time.
 	 * @param src
 	 * @param dest
+	 * @return 
 	 * @return
 	 */
+	
+	public void init(String jsonSTR);
+	
 	public edge_data getEdge(int src, int dest);
 	/**
 	 * add a new node to the graph with the given node_data.

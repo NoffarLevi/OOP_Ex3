@@ -25,13 +25,12 @@ public class Fruit {
 	public Fruit(String jsonSTR) {
 		
 		try {
-			int noff;
 			JSONObject fruit = new JSONObject(jsonSTR);
 			fruit=fruit.getJSONObject("Fruit");
 			this.type=fruit.getInt("type");
 			this.value = fruit.getDouble("value");
 			this.edge = null;
-			Point3D p = new Point3D(fruit.getString("pos"));			
+			this.location = new Point3D(fruit.getString("pos"));
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -52,12 +51,7 @@ public class Fruit {
 	}
 
 	public int getType() {
-		int ans=1;
-		if(this.edge.getDest() - this.edge.getSrc()<0) //banana
-		{ 
-			return ans*(-1);
-		}
-		return ans; //apple
+		return this.type; //apple
 	}
 
 	public void setType(int t) {
@@ -81,7 +75,7 @@ public class Fruit {
 	}
 	
 	public String toString() {
-		return "value" + this.value;
+		return "value" + this.value + "eSrc "+this.getEdge().getSrc();
 	}
 	
 }

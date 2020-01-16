@@ -59,6 +59,7 @@ public class Edge implements edge_data, Serializable {
 	
 	public String toString() {
 		return "Edge source: "+this.src.getKey()+" Edge destination: "+this.dest.getKey()+" Edge weight: "+this.weight;
+
 	}
 
 }

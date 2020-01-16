@@ -57,7 +57,7 @@ public class Robot {
 		return id;
 	}
 
-	private void updateSpeed() {}
+	private void updateSpeed() {}//write code
 	
 	public void randomWalk() {} //write code
 	
@@ -85,6 +85,10 @@ public class Robot {
 	
 	public void setSrc(int s) {
 		this.src=s;
+	}
+	
+	public void setDest(int d) {
+		this.dest=d;
 	}
 	
 	public int getDest() {

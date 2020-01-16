@@ -21,14 +21,15 @@ public class SimpleGameClient {
 	game_service game = Game_Server.getServer(23);
 	String g=game.getGraph();
 	DGraph gd = new DGraph();
-	gd.init(g);	
+	gd.init(g);
+
 	//MyGameGui gr = new MyGameGui(gd);
 	game.addRobot(0);
-//	game.addRobot(1);
-//	game.addRobot(2);
+	game.addRobot(1);
+	game.addRobot(2);
 	System.out.println(game.toString());
 	System.out.println(game.getGraph());
-
+	System.out.println(game.getFruits());
 	}
 
 }
