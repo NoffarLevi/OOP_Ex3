@@ -15,7 +15,6 @@ import org.json.JSONObject;
 
 import Server.*;
 import dataStructure.*;
-import gui.MyGameGui;
 
 public class ClientRun extends Thread {
 
@@ -41,7 +40,7 @@ public class ClientRun extends Thread {
 			automatic = null;
 		
 		if(!manGame) {
-		System.out.println("good");
+		System.out.println(game.getFruits());
 			automatic = new AlgoGame(arena);
 			automatic.start();
 		}
@@ -83,7 +82,7 @@ public class ClientRun extends Thread {
 		frame.setBounds(200, 0, 500, 500);
 		try {
 
-			String[] mode = { "Manual", "Auto" };
+			String[] mode = { "Manual", "Automatic" };
 			
 			int m = JOptionPane.showOptionDialog(frame, "Choose option", "The Maze of Waze",
 					JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, mode, mode[1]);

@@ -10,7 +10,6 @@ import org.json.JSONObject;
 import Server.Game_Server;
 import Server.game_service;
 import dataStructure.*;
-import gui.MyGameGui;
 
 public class SimpleGameClient {
 	

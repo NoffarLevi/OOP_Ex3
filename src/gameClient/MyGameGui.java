@@ -1,4 +1,4 @@
-package gui;
+package gameClient;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -29,16 +29,11 @@ import dataStructure.DGraph;
 import dataStructure.edge_data;
 import dataStructure.graph;
 import dataStructure.node_data;
-import gameClient.Arena;
-import gameClient.ClientRun;
-import gameClient.Fruit;
-import gameClient.Robot;
 import utils.Point3D;
 
 public class MyGameGui extends JFrame implements MouseListener{
 
 	private Arena arena;
-	private ClientRun cRun;
 	double xMax, xMin, yMax, yMin;
 	private BufferedImage apple, banana, minion;
 	int xRobot,yRobot,xDest,yDest;

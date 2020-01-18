@@ -10,12 +10,10 @@ public class Robot {
 	
 	public static final double EPS=1.0E-4D;
 
-	private static int count;
 	private int id;
 	private Point3D location;
 	private double speed;  
 	private int src, dest;
-	private graph g;
 	private double money;
 	
 	
@@ -39,7 +37,7 @@ public class Robot {
 		
 	}
 	
-		
+	//Returns the robot id.	
 	void setMoney(double v) {
 		this.money = v;
 	}
@@ -50,51 +48,44 @@ public class Robot {
 	public void addMoney(double d) {
 		this.money += d;
 	}
-
-	public boolean setNextNode(int dest) {return true;} //need to write code
-		
-	public int getKey(int id) {
-		return id;
-	}
-
-	private void updateSpeed() {}//write code
 	
-	public void randomWalk() {} //write code
-	
+	//Returns robot id 
 	public int getID() {
 		return this.id;
 	}
-
+	//Returns robot position on graph
 	public Point3D getLocation() {
-		return new Point3D(this.location); //gui location
+		return new Point3D(this.location);
 	}
 
 	public int getNextNode() {return 0;} // write code
 
+	//Returns robot speed
 	public double getSpeed() {
 		return this.speed;
 	}
-	
+	//Sets robot speed
 	public void setSpeed(double v) {
 		this.speed = v;
 	}
 	
+	//Returns robot source node
 	public int getSrc() {
 		return this.src;
 	}
-	
+	//Sets robot source node
 	public void setSrc(int s) {
 		this.src=s;
 	}
-	
+	//Sets robot destination node
 	public void setDest(int d) {
 		this.dest=d;
 	}
-	
+	//Returns robot destination node
 	public int getDest() {
 		return this.dest;
 	}
-	
+	//Returns string version of Robot
 	public String toString() {
 		return " ID #"+this.id+" Node src: "+this.src+" Node dest: "+this.dest;
 	}

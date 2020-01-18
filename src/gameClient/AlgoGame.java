@@ -15,10 +15,12 @@ public class AlgoGame extends Thread {
 	private Arena arena;
 	private Graph_Algo graphA;
 	private Hashtable <Integer, List<node_data>> roads;
+	private int count=0;
 
+	public AlgoGame() {}
+	
 	public AlgoGame(Arena a) 
 	{
-		System.out.println("im in");
 		this.arena = a;
 		this.graphA = new Graph_Algo(arena.getGraph());
 		this.roads = new Hashtable <Integer, List<node_data>>();
@@ -28,15 +30,14 @@ public class AlgoGame extends Thread {
 	public void run() {
 		System.out.println("in run");
 		try {
-		//	game_service g=arena.getGame();
+			Thread.sleep(10);
 			initRoads();
 			while(arena.getGame().timeToEnd()>=50) {
 				for (int i=0; i<arena.getRobots().size(); i++) {
 					Robot robot = arena.getRobots().get(i);
 					if(robot!=null && robot.getDest()==-1) {
 						int next=nextNode(i);
-						arena.getGame().chooseNextEdge(i, next);
-						
+						arena.getGame().chooseNextEdge(i, next);						
 					}
 				}
 			}
@@ -47,18 +48,17 @@ public class AlgoGame extends Thread {
 		}
 	}
 
-
-	private int nextNode(int i) {
+	private int nextNode(int id) {
 		if(!arena.getGame().isRunning())
 			return -1;
-		List<node_data> robotRoad=roads.get(i);
-		Robot r= arena.getRobots().get(i);
+		List<node_data> robotRoad=roads.get(id);
+		Robot r= arena.getRobots().get(id);
 		if(robotRoad.isEmpty()==true) {
 			synchronized (arena.getFruits()) {
 				if(arena.getFruits().size()>0) {
-					Fruit f=arena.getFruits().get(i);
+					Fruit f=arena.getFruits().get(id);
 					robotRoad=graphA.shortestPath(r.getSrc(), f.getEdge().getSrc());
-					node_data des=arena.getGraph().getNode(f.getEdge().getSrc());
+					node_data des=arena.getGraph().getNode(f.getEdge().getDest());
 					robotRoad.add(des);
 					roads.put(r.getID(), robotRoad);
 				}
@@ -68,7 +68,7 @@ public class AlgoGame extends Thread {
 
 		for (int j = 0; j < robotRoad.size(); j++) {
 			node_data curr=robotRoad.get(j);
-			robotRoad.remove(i);
+			robotRoad.remove(j);
 			if(curr.getKey()==r.getSrc()) {
 				continue;
 			}
@@ -76,7 +76,7 @@ public class AlgoGame extends Thread {
 		}
 		return -1;
 	}
-
+	
 	private void initRoads() {
 		for (int i = 0; i < arena.getRobots().size(); i++) {
 			Robot r=arena.getRobots().get(i);
@@ -85,6 +85,5 @@ public class AlgoGame extends Thread {
 			roads.put(r.getID(), road);
 		}		
 	}
-
 
 }

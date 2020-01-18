@@ -23,30 +23,38 @@ public class Arena {
 	private graph grGame;
 	private ArrayList<Fruit>fruits;
 	private Hashtable<Integer,Robot> robots;
+	private KMLlog kml;
+	private String fType;
 
 
+	public Arena() {}
+	
+	//Initiates arena with the level the server entered
 	public Arena(int num_level) {
-
+		//kml = KMLlog.getInstance(num_level); // initiate KML
 		game = Game_Server.getServer(num_level);
 		grGame = new DGraph();
 		grGame.init(game.getGraph());
+//		addNodesToKML();
+//		setScaleParameters();
 		fruits= new ArrayList<Fruit>();
 		robots = new Hashtable<Integer,Robot>(); //Integer is robot id
 		fruitsInit();
 		setPositionRo();
 		robotsInit();
-
 	}
-
+	
+	//Initiates a Robot object from JSON String
 	public void robotsInit() {
 
 		for (String r : game.getRobots()) {			
 			Robot ro = new Robot(r);
+		//	kml.addPlacemark(robot.getLocation(), "robot");
 			robots.put(ro.getID(), ro);
 		}
 	}
 
-
+		//sets Robot starting position near highest valued fruit
 		private void setPositionRo() {
 	
 			try {
@@ -61,6 +69,7 @@ public class Arena {
 			}		
 		}
 
+	//Initiates a Fruit object from JSON String
 	public void fruitsInit() {
 		synchronized (fruits) 
 		{ 
@@ -70,12 +79,21 @@ public class Arena {
 					Fruit fr = new Fruit(f);
 					getEdge(fr);
 					fruits.add(fr);
+					
+					if(fr.getType()==1) {
+						 fType ="apple";
+					}
+					else {
+						fType = "banana";
+					}
+					//kml.addPlacemark(fr.getLocation(), fType); // add placemark to kml
 				}
 				fruits.sort(Fruit.comp);
 			}
 		}
 	}
 
+	//Sets Fruit on specified edge
 	public void getEdge(Fruit f) { //find location of fruit
 		for (node_data n : grGame.getV()) {
 			for (edge_data e : grGame.getE(n.getKey())) {
@@ -94,24 +112,25 @@ public class Arena {
 		}
 
 	}
-
+	
+	//Refreshed the fruits and robots from the server and updates the lists.
 	public void refresh(){
 		fruitsInit();
 		robotsInit();		
 	}
-
+	//Returns the game's graph
 	public graph getGraph() {
 		return this.grGame;
 	}
-
+	//Returns the game object
 	public game_service getGame() {
 		return this.game;
 	}
-
+	//Returns the list of Robots
 	public Hashtable<Integer,Robot> getRobots() {
 		return this.robots;
 	}
-
+	//Returns the list of Fruits
 	public ArrayList<Fruit> getFruits(){
 		return this.fruits;
 	}
