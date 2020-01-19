@@ -20,7 +20,7 @@ public class ClientRun extends Thread {
 
 	private MyGameGui win;
 	private Arena arena;
-	private KMLlog log;
+	private KML_Logger log;
 
 	private AlgoGame automatic;
 	private static int num_level=0;
@@ -69,7 +69,7 @@ public class ClientRun extends Thread {
 			e.printStackTrace();
 		}
 
-		log = KMLlog.getVariable(num_level);
+		log = KML_Logger.getVariable(num_level);
 		log.end();
 		KMLlog();
 		

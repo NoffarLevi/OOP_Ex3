@@ -23,13 +23,13 @@ public class Arena {
 	private graph grGame;
 	private ArrayList<Fruit>fruits;
 	private Hashtable<Integer,Robot> robots;
-	private KMLlog kml;
+	private KML_Logger kml;
 
 	public Arena() {}
 	
 	//Initiates arena with the level the server entered
 	public Arena(int num_level) {
-		kml = KMLlog.getVariable(num_level); // initiate KML
+		kml = KML_Logger.getVariable(num_level); // initiate KML
 		game = Game_Server.getServer(num_level);
 		grGame = new DGraph();
 		grGame.init(game.getGraph());

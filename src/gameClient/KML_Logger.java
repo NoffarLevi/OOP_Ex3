@@ -9,7 +9,7 @@ import java.util.Date;
 
 import utils.Point3D;
 
-public class KMLlog {
+public class KML_Logger {
 
 	private int num_level;
 	private StringBuilder information;
@@ -17,9 +17,9 @@ public class KMLlog {
 	private final String Folder = "data/";
 	private final String Kml = ".kml";
 
-	private static KMLlog logger = null;
+	private static KML_Logger logger = null;
 
-	private KMLlog(int num_level) {
+	private KML_Logger(int num_level) {
 		this.num_level = num_level;
 		information = new StringBuilder();
 		start();
@@ -86,9 +86,9 @@ public class KMLlog {
 				);
 	}
 
-	public static KMLlog getVariable(int num_level) {
+	public static KML_Logger getVariable(int num_level) {
 			if(logger == null) {
-				logger = new KMLlog(num_level);
+				logger = new KML_Logger(num_level);
 			}
 			
 			return logger;
