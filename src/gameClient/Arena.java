@@ -24,32 +24,36 @@ public class Arena {
 	private ArrayList<Fruit>fruits;
 	private Hashtable<Integer,Robot> robots;
 	private KMLlog kml;
-	private String fType;
-
 
 	public Arena() {}
 	
 	//Initiates arena with the level the server entered
 	public Arena(int num_level) {
-		//kml = KMLlog.getInstance(num_level); // initiate KML
+		kml = KMLlog.getVariable(num_level); // initiate KML
 		game = Game_Server.getServer(num_level);
 		grGame = new DGraph();
 		grGame.init(game.getGraph());
-//		addNodesToKML();
-//		setScaleParameters();
+		
 		fruits= new ArrayList<Fruit>();
 		robots = new Hashtable<Integer,Robot>(); //Integer is robot id
 		fruitsInit();
 		setPositionRo();
 		robotsInit();
+		NodesToKML();
 	}
 	
+	private void NodesToKML() {
+			for (node_data node : grGame.getV()) {
+				kml.addMark("node", node.getLocation());
+			}
+	}
+
 	//Initiates a Robot object from JSON String
 	public void robotsInit() {
 
 		for (String r : game.getRobots()) {			
 			Robot ro = new Robot(r);
-		//	kml.addPlacemark(robot.getLocation(), "robot");
+			kml.addMark("robot",ro.getLocation());
 			robots.put(ro.getID(), ro);
 		}
 	}
@@ -81,12 +85,12 @@ public class Arena {
 					fruits.add(fr);
 					
 					if(fr.getType()==1) {
-						 fType ="apple";
+					kml.addMark("apple",fr.getLocation()); // placemark to kml
+
 					}
 					else {
-						fType = "banana";
+						kml.addMark("banana",fr.getLocation()); // placemark to kml
 					}
-					//kml.addPlacemark(fr.getLocation(), fType); // add placemark to kml
 				}
 				fruits.sort(Fruit.comp);
 			}

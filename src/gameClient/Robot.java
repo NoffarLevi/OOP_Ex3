@@ -19,6 +19,7 @@ public class Robot {
 	
 	public Robot() {}
 
+	//Initializes robot from JSON String
 	public Robot(String jsonSTR) {
 	
 		try {
@@ -37,14 +38,16 @@ public class Robot {
 		
 	}
 	
-	//Returns the robot id.	
-	void setMoney(double v) {
+	//Sets robot's earinings
+	public void setMoney(double v) {
 		this.money = v;
 	}
+	//Returns the robots earnings
 	public double getMoney() {
 		return this.money;
 	}
 
+	// adds money to Robot's earnings
 	public void addMoney(double d) {
 		this.money += d;
 	}
@@ -57,8 +60,6 @@ public class Robot {
 	public Point3D getLocation() {
 		return new Point3D(this.location);
 	}
-
-	public int getNextNode() {return 0;} // write code
 
 	//Returns robot speed
 	public double getSpeed() {

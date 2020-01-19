@@ -3,7 +3,6 @@ package gameClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import gui.*;
 import dataStructure.*;
 import utils.Point3D;
 
@@ -66,7 +65,7 @@ public class Fruit {
 		this.edge=e;
 	}
 	
-	// equal if positions are the same
+	// equal if locations are the same
 	@Override
 	public boolean equals(Object f1) 
 	{
@@ -79,7 +78,7 @@ public class Fruit {
 	}
 	// Returns string version of Robot
 	public String toString() {
-		return "value" + this.value + "eSrc "+this.getEdge().getSrc();
+		return "value" + this.value;
 	}
 
 

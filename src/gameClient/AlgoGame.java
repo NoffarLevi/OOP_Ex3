@@ -41,7 +41,6 @@ public class AlgoGame extends Thread {
 					}
 				}
 			}
-
 		}
 		catch (Exception e) {
 			e.printStackTrace();
