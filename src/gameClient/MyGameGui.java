@@ -5,6 +5,9 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Menu;
+import java.awt.MenuBar;
+import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -21,6 +24,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import Server.Game_Server;
 import Server.game_service;
@@ -31,7 +35,7 @@ import dataStructure.graph;
 import dataStructure.node_data;
 import utils.Point3D;
 
-public class MyGameGui extends JFrame implements MouseListener{
+public class MyGameGUI extends JFrame implements MouseListener{
 
 	private Arena arena;
 	double xMax, xMin, yMax, yMin;
@@ -40,11 +44,15 @@ public class MyGameGui extends JFrame implements MouseListener{
 	node_data dest;
 	private boolean manGame;
 	private int ROBOT_ID, NODE_DEST;
+	private MyDataBase dataBase;
+	private ClientRun level;
 
-	public MyGameGui() {}
+	public MyGameGUI() {}
 
-	public MyGameGui(Arena a, boolean flag)
+	public MyGameGUI(Arena a, boolean flag)
 	{	
+		dataBase = new MyDataBase();
+		//level = new ClientRun();
 		arena = a;
 		manGame = flag;
 
@@ -67,13 +75,73 @@ public class MyGameGui extends JFrame implements MouseListener{
 	{
 		this.setSize(1100,800);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setVisible(true);
+
+		MenuBar menuBar = new MenuBar();
+
+		Menu file = new Menu("File");
+
+		this.setMenuBar(menuBar);
+		menuBar.add(file);
+
+		MenuItem status1 = new MenuItem("Player's Status");
+		MenuItem status2 = new MenuItem("Game Rankings");
+
+		file.add(status1);
+		file.add(status2);
 
 		if(manGame) {
 			System.out.println("isManual");
 			this.addMouseListener(this);
 		}
 
+		status1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				String playerID = JOptionPane.showInputDialog("ENTER YOUR ID");
+				int id = Integer.parseInt(playerID);
+				dataBase.setPlayerID(id);
+				showMyStatus();
+			}
+		});
+
+		status2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				String playerID = JOptionPane.showInputDialog("ENTER YOUR ID");
+				int id = Integer.parseInt(playerID);
+				dataBase.setPlayerID(id);
+				showGameStatus();
+			}
+		});
+
+		this.setVisible(true);
+
+	}
+	
+
+	private void showMyStatus() {
+		JFrame frame = new JFrame();
+		frame.setBounds(200, 0, 500, 500);
+		
+		dataBase.countGamesPlayed();
+
+		String message ="Total of games played: "+dataBase.getNumOfGames()+
+				"     Current Level on: " +arena.getcurrentlevel();
+
+		JOptionPane.showMessageDialog(frame, message);
+
+	}
+
+	private void showGameStatus() {
+		String[] columnNames = {"ID ",
+                "level ",
+                "place ",
+                "score ",
+                };
+		
+		Object[][] data = {};
 	}
 
 	public void paint(Graphics g)
@@ -252,38 +320,38 @@ public class MyGameGui extends JFrame implements MouseListener{
 
 
 		if(!arena.getGame().isRunning())
-			{return;}
-		
-			xRobot = e.getX();  //x of robot
-			yRobot = e.getY();
+		{return;}
 
-			Point3D p = new Point3D(xRobot,yRobot);
-			if(e.getClickCount() == 1) {
-				node_data node = findNodePosOnGraph(p);
+		xRobot = e.getX();  //x of robot
+		yRobot = e.getY();
 
-				if(node != null) {
-					NODE_DEST = node.getKey();
+		Point3D p = new Point3D(xRobot,yRobot);
+		if(e.getClickCount() == 1) {
+			node_data node = findNodePosOnGraph(p);
 
-					try {
+			if(node != null) {
+				NODE_DEST = node.getKey();
 
-						arena.getGame().chooseNextEdge(ROBOT_ID,NODE_DEST);
-						NODE_DEST = -1;
+				try {
+
+					arena.getGame().chooseNextEdge(ROBOT_ID,NODE_DEST);
+					NODE_DEST = -1;
 
 
-					}catch(Exception error) {
-						error.printStackTrace();
-					}
-				}
-
-			}	
-
-			if (e.getClickCount() == 2) {
-				Robot r = findRbotPosOnGraph(p);
-				if (r != null) {
-					ROBOT_ID = r.getID();
+				}catch(Exception error) {
+					error.printStackTrace();
 				}
 			}
+
+		}	
+
+		if (e.getClickCount() == 2) {
+			Robot r = findRbotPosOnGraph(p);
+			if (r != null) {
+				ROBOT_ID = r.getID();
+			}
 		}
+	}
 
 	private node_data findNodePosOnGraph(Point3D p) {
 
@@ -342,24 +410,4 @@ public class MyGameGui extends JFrame implements MouseListener{
 
 }
 
-
-
-
-
-//comments about the asignments
-
-/*  
- * class tree diagram
- *
- * delete unnccery code
- * in package gameclient  there is thread-look
- * manual( int closestNode(Point p, graph g)
- * setscale x&y jframe  test take between 1-3 get 2.5  blabla
- * in boaz class-myframe-> paint
- *  
- * 
- * 
- * 
- * 
- */
 

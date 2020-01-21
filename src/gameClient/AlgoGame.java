@@ -18,32 +18,41 @@ public class AlgoGame extends Thread {
 	private int count=0;
 
 	public AlgoGame() {}
-	
+
 	public AlgoGame(Arena a) 
 	{
 		this.arena = a;
 		this.graphA = new Graph_Algo(arena.getGraph());
 		this.roads = new Hashtable <Integer, List<node_data>>();
+		initRoads();
 	}
 
-	@Override
-	public void run() {
-		System.out.println("in run");
-		try {
-			Thread.sleep(10);
-			initRoads();
-			while(arena.getGame().timeToEnd()>=50) {
-				for (int i=0; i<arena.getRobots().size(); i++) {
-					Robot robot = arena.getRobots().get(i);
-					if(robot!=null && robot.getDest()==-1) {
-						int next=nextNode(i);
-						arena.getGame().chooseNextEdge(i, next);						
-					}
-				}
+	public Fruit findTheFruit(Robot r) {
+		double shortestDist = Double.POSITIVE_INFINITY;
+		Fruit get = null;
+		for (int i=0; i<arena.getFruits().size(); i++) {
+			Fruit f = arena.getFruits().get(i);
+			if(f.isTagged() == 1) {
+				continue;
+			}
+			double distance = graphA.shortestPathDist(r.getSrc(), f.getEdge().getSrc());
+			if(distance< shortestDist) {
+				shortestDist= distance;
+				get = f;
 			}
 		}
-		catch (Exception e) {
-			e.printStackTrace();
+		get.setTag(1);
+		return get;
+
+	}
+	public void moveRobots(game_service g) {
+		int next =-1;
+		for (int i=0; i<arena.getRobots().size(); i++) {
+			Robot robot = arena.getRobots().get(i);
+			if(robot!=null && robot.getDest()==-1) {
+				next=nextNode(i);
+				arena.getGame().chooseNextEdge(i, next);						
+			}
 		}
 	}
 
@@ -56,6 +65,7 @@ public class AlgoGame extends Thread {
 			synchronized (arena.getFruits()) {
 				if(arena.getFruits().size()>0) {
 					Fruit f=arena.getFruits().get(id);
+					System.out.println("edge is "+f.getEdge());
 					robotRoad=graphA.shortestPath(r.getSrc(), f.getEdge().getSrc());
 					node_data des=arena.getGraph().getNode(f.getEdge().getDest());
 					robotRoad.add(des);
@@ -65,17 +75,21 @@ public class AlgoGame extends Thread {
 			}
 		}
 
-		for (int j = 0; j < robotRoad.size(); j++) {
-			node_data curr=robotRoad.get(j);
-			robotRoad.remove(j);
-			if(curr.getKey()==r.getSrc()) {
-				continue;
-			}
-			return curr.getKey();
-		}
-		return -1;
+		node_data nd = robotRoad.get(0);
+		robotRoad.remove(0);
+		return nd.getKey();
+
+		//		for (int j = 0; j < robotRoad.size(); j++) {
+		//			node_data curr=robotRoad.get(j);
+		//			robotRoad.remove(j);
+		//			if(curr.getKey()==r.getSrc()) {
+		//				continue;
+		//			}
+		//			return curr.getKey();
+		//		}
+		//		return -1;
 	}
-	
+
 	private void initRoads() {
 		for (int i = 0; i < arena.getRobots().size(); i++) {
 			Robot r=arena.getRobots().get(i);

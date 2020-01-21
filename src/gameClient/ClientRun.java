@@ -18,64 +18,68 @@ import dataStructure.*;
 
 public class ClientRun extends Thread {
 
-	private MyGameGui win;
+	private MyGameGUI win;
 	private Arena arena;
 	private KML_Logger log;
 
 	private AlgoGame automatic;
+
+	private static int playerID;
 	private static int num_level=0;
 	private static boolean manGame=false;
 	private game_service game;
 
 	public ClientRun() {
 		arena = new Arena(num_level);
-		win = new MyGameGui(arena, manGame);
+		win = new MyGameGUI(arena, manGame);
 	}
 
 	@Override
 	public void run() {
 
+		Game_Server.login(336211537);
 		game = arena.getGame();
 		game.startGame();
 
 		automatic = null;
 
 		if(!manGame) {
-			System.out.println(game.getFruits());
 			automatic = new AlgoGame(arena);
-			automatic.start();
 		}
 
 		try {
 
-			int dati = 65;
+			int dati = 70;
 			int check = 0;
 			while(game.isRunning()) {
-				if(check % 2 == 0) {
-					arena.getGame().move();
-					arena.refresh();
+				if(!manGame) {
+					automatic.moveRobots(game);
 				}
-				win.repaint();
+				game.move();
+				arena.refresh();
+				if(check % 2 == 0) {
+					win.repaint();
+				}
 				Thread.sleep(dati);
 				check++;
-			}
-
-
-			if(automatic != null) {
-				automatic.interrupt(); //kills the auto game
-			}
-
+			}	
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
 
 		log = KML_Logger.getVariable(num_level);
 		log.end();
+		game.sendKML(log.getKml());
+		try {
+			this.sleep(15000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		KMLlog();
-		
+
 		double score = getScore();
 		int moves = getMoves();
-		
+
 		JOptionPane.showMessageDialog(win, "Game Over !\n Points earned: "+score+" in "+moves+" moves.");
 		win.setVisible(false);
 		System.exit(0);
@@ -86,7 +90,7 @@ public class ClientRun extends Thread {
 		if(result == 0) {
 			log.export();
 		}
-				
+
 	}
 
 	private static void init() {
@@ -98,7 +102,8 @@ public class ClientRun extends Thread {
 
 			int m = JOptionPane.showOptionDialog(frame, "Choose option", "The Maze of Waze",
 					JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, mode, mode[1]);
-			String lev = JOptionPane.showInputDialog(frame, "Please insert a scenerio [0-23]");
+			String lev = JOptionPane.showInputDialog(frame, "Please insert level number [0-23]");
+
 
 			num_level = Integer.parseInt(lev);
 
@@ -154,5 +159,12 @@ public class ClientRun extends Thread {
 		return automatic;
 	}
 
+	public int getPlayerID() {
+		return playerID;
+	}
+
+	public int getlevel() {
+		return num_level;
+	}
 
 }

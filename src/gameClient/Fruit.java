@@ -12,13 +12,14 @@ public class Fruit {
 	private double value;
 	private Point3D location;
 	private edge_data edge ;
+	private int tagged;
 	public static final Comperator comp = new Comperator();
 
 	public Fruit() {}
 
 	//initiate a fruit from a JSON String
 	public Fruit(String jsonSTR) {
-
+		tagged = -1;
 		try {
 			JSONObject fruit = new JSONObject(jsonSTR);
 			fruit=fruit.getJSONObject("Fruit");
@@ -28,9 +29,16 @@ public class Fruit {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-
 	}
-	
+
+	public int isTagged() {
+		return this.tagged;
+	}
+
+	public void setTag(int b) {
+		tagged = b;
+	}
+
 	//Returns fruit location on the graph
 	public Point3D getLocation() {
 		return new Point3D(this.location);
@@ -64,7 +72,7 @@ public class Fruit {
 	public void setEdge(edge_data e) {
 		this.edge=e;
 	}
-	
+
 	// equal if locations are the same
 	@Override
 	public boolean equals(Object f1) 

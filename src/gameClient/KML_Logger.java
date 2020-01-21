@@ -108,7 +108,9 @@ public class KML_Logger {
 		}
 	}
 	
-
+		public String getKml() {
+			return information.toString();
+		}
 
 	//closes file
 	public void end() {

@@ -24,11 +24,13 @@ public class Arena {
 	private ArrayList<Fruit>fruits;
 	private Hashtable<Integer,Robot> robots;
 	private KML_Logger kml;
+	private int currentlevel;
 
 	public Arena() {}
 	
 	//Initiates arena with the level the server entered
 	public Arena(int num_level) {
+		currentlevel = num_level; 
 		kml = KML_Logger.getVariable(num_level); // initiate KML
 		game = Game_Server.getServer(num_level);
 		grGame = new DGraph();
@@ -46,6 +48,10 @@ public class Arena {
 			for (node_data node : grGame.getV()) {
 				kml.addMark("node", node.getLocation());
 			}
+	}
+	
+	public int getcurrentlevel() {
+		return currentlevel;
 	}
 
 	//Initiates a Robot object from JSON String
