@@ -1,9 +1,11 @@
 package gameClient;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Menu;
 import java.awt.MenuBar;
@@ -14,8 +16,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.awt.Component;
 import java.awt.FlowLayout;
 
@@ -24,7 +30,11 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 import Server.Game_Server;
 import Server.game_service;
@@ -44,15 +54,15 @@ public class MyGameGUI extends JFrame implements MouseListener{
 	node_data dest;
 	private boolean manGame;
 	private int ROBOT_ID, NODE_DEST;
-	private MyDataBase dataBase;
-	private ClientRun level;
+	private static MyDataBase dataBase;
+	int Width =1100;
+	int Height = 800;
 
 	public MyGameGUI() {}
 
 	public MyGameGUI(Arena a, boolean flag)
 	{	
 		dataBase = new MyDataBase();
-		//level = new ClientRun();
 		arena = a;
 		manGame = flag;
 
@@ -73,7 +83,7 @@ public class MyGameGUI extends JFrame implements MouseListener{
 
 	private void initGUI() 
 	{
-		this.setSize(1100,800);
+		this.setSize(Width,Height);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		MenuBar menuBar = new MenuBar();
@@ -83,8 +93,8 @@ public class MyGameGUI extends JFrame implements MouseListener{
 		this.setMenuBar(menuBar);
 		menuBar.add(file);
 
-		MenuItem status1 = new MenuItem("Player's Status");
-		MenuItem status2 = new MenuItem("Game Rankings");
+		MenuItem status1 = new MenuItem("My Status");
+		MenuItem status2 = new MenuItem("Overall Rankings");
 
 		file.add(status1);
 		file.add(status2);
@@ -97,21 +107,14 @@ public class MyGameGUI extends JFrame implements MouseListener{
 		status1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
-				String playerID = JOptionPane.showInputDialog("ENTER YOUR ID");
-				int id = Integer.parseInt(playerID);
-				dataBase.setPlayerID(id);
 				showMyStatus();
+				allMyGames();
 			}
 		});
 
 		status2.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				String playerID = JOptionPane.showInputDialog("ENTER YOUR ID");
-				int id = Integer.parseInt(playerID);
-				dataBase.setPlayerID(id);
+			public void actionPerformed(ActionEvent e) {				
 				showGameStatus();
 			}
 		});
@@ -119,38 +122,92 @@ public class MyGameGUI extends JFrame implements MouseListener{
 		this.setVisible(true);
 
 	}
-	
 
 	private void showMyStatus() {
+		
+		try {
 		JFrame frame = new JFrame();
-		frame.setBounds(200, 0, 500, 500);
+		frame.setBounds(200, 0, 500, 300);
+		frame.setLayout(new GridLayout(3,1));
+
+		int id = ClientRun.getPlayerID();
+		MyDataBase.countGamesPlayed(id);
+		double[] score = MyDataBase.bestScore(arena,id);
+
+		JLabel totalGames = new JLabel("Total of games played: "+ MyDataBase.NumOfGames);
+		JLabel currentLevel = new JLabel("Current Level on:  "+arena.getcurrentlevel());
+		JLabel bestScore = new JLabel("Your best score for level "+arena.getcurrentlevel()+" is "+score[0]+" with "+(int)score[1]+" moves" );
+
+		totalGames.setFont(new Font("Arial",Font.BOLD,15));
+		currentLevel.setFont(new Font("Arial",Font.BOLD,15));
+		bestScore.setFont(new Font("Arial",Font.BOLD,15));
+
+		frame.add(currentLevel);
+		frame.add(totalGames);
+		frame.add(bestScore);
+
+		frame.setVisible(true);
 		
-		dataBase.countGamesPlayed();
-
-		String message ="Total of games played: "+dataBase.getNumOfGames()+
-				"     Current Level on: " +arena.getcurrentlevel();
-
-		JOptionPane.showMessageDialog(frame, message);
-
+		}catch(SQLException error) {
+			JOptionPane.showMessageDialog(this,error.getMessage(),"Error", JOptionPane.ERROR_MESSAGE );
+		}
 	}
 
+
+//
+//	private void showGameStatus() {
+//		String[] columnNames = {"ID ",
+//				"Position ", "Level" , "Score "
+//		};
+//		
+//		
+//
+//		Object[][] data = MyDataBase.AllScores();
+//	}
+
+	
+	private void allMyGames() {
+		
+		int id = ClientRun.getPlayerID();
+		
+		
+        String[] columnNames = { "UserID", "LevelID", "moves", "score", "time" };
+        JFrame frame1 = new JFrame("Highest Scores of Each Level Played" );
+        frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame1.setLayout(new BorderLayout());
+        DefaultTableModel tableModel = new DefaultTableModel();
+        for (String columnName : columnNames) {
+            tableModel.addColumn(columnName);
+        }
+        HashMap<Integer, String> result  =  MyDataBase.AllScores(id);
+    
+        for (Entry<Integer, String> value : result.entrySet()) {
+            tableModel.addRow(value.getValue().split(","));
+        }
+
+        JTable table = new JTable(tableModel);
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        frame1.add(scroll);
+        frame1.setSize(500, 350);
+        frame1.setVisible(true);
+    }
 	private void showGameStatus() {
-		String[] columnNames = {"ID ",
-                "level ",
-                "place ",
-                "score ",
-                };
 		
-		Object[][] data = {};
+		
+		
+		
+		
+		
 	}
-
 	public void paint(Graphics g)
 	{
-		BufferedImage BImage = new BufferedImage(1100, 800,BufferedImage.TYPE_INT_ARGB);
+		BufferedImage BImage = new BufferedImage(Width,Height,BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = BImage.createGraphics();
 
 		g2d.setBackground(new Color(240,240,240));
-		g2d.clearRect(0, 0, 1100, 800);
+		g2d.clearRect(0, 0, Width, Height);
 
 		drawGraph(g2d);
 		drawTime(g2d);
@@ -159,8 +216,6 @@ public class MyGameGUI extends JFrame implements MouseListener{
 
 		Graphics2D g2dComp = (Graphics2D) g;
 		g2dComp.drawImage(BImage, null, 0, 0);
-
-
 
 	}
 
@@ -171,9 +226,9 @@ public class MyGameGUI extends JFrame implements MouseListener{
 		for (node_data n : arena.getGraph().getV()) 
 		{
 			g.setColor(Color.BLUE);
-			g.fillOval(n.getLocation2().ix()-5,n.getLocation2().iy()-10, 10, 10);
+			g.fillOval(n.getLocation2().ix()-5,n.getLocation2().iy()-5, 10, 10);
 			g.setFont(new Font("Arial", Font.BOLD, 14));
-			g.drawString(n.getKey()+"", n.getLocation2().ix()+20, n.getLocation2().iy());
+			g.drawString(n.getKey()+"", n.getLocation2().ix()+5, n.getLocation2().iy()+5);
 
 			if(arena.getGraph().getE(n.getKey())!= null) {
 				for (edge_data e : arena.getGraph().getE(n.getKey())) {
@@ -202,16 +257,16 @@ public class MyGameGUI extends JFrame implements MouseListener{
 	private void drawFruit(Graphics2D g) {
 		//paint fruits
 		for (Fruit f : arena.getFruits()) {
-			double x= scale(f.getLocation().x(),xMin ,xMax,30,900);
-			double y= scale(f.getLocation().y(),yMax ,yMin,50,700);
+			int x= (int)scale(f.getLocation().x(),xMin ,xMax,50,Width-50);
+			int y= (int)scale(f.getLocation().y(),yMax ,yMin,100,Height-100);
 
-			if(f.getType()==-1) {
-				g.drawImage(apple, (int)x-7, (int)y-10, this);
+			if(f.getType()==1) {
+				g.drawImage(apple, x-7, y-7, this);
 
 			}
 			else {
 
-				g.drawImage(banana, (int)x-7, (int)y-10,this);
+				g.drawImage(banana, (int)x-7, (int)y-7,this);
 
 			}
 		}
@@ -222,11 +277,9 @@ public class MyGameGUI extends JFrame implements MouseListener{
 		//paint robots
 		for (Entry<Integer, Robot> r : arena.getRobots().entrySet()) 	
 		{
-			double x= scale(r.getValue().getLocation().x(),xMin ,xMax,30,900);
-			double y= scale(r.getValue().getLocation().y(),yMax ,yMin,50,700);
+			double x= scale(r.getValue().getLocation().x(),xMin ,xMax,50,Width-50);
+			double y= scale(r.getValue().getLocation().y(),yMax ,yMin,100,Height-100);
 
-			//			g.setColor(Color.BLACK);
-			//			g.drawOval((int)x-8,(int)y-12, 15, 15);
 			g.drawImage(minion, (int)x-8, (int)y-12,this);
 
 		}
@@ -249,8 +302,8 @@ public class MyGameGUI extends JFrame implements MouseListener{
 
 		for (node_data n : g.getV()) 
 		{
-			double x=scale(n.getLocation().x(),xMin ,xMax,30,900);
-			double y=scale(n.getLocation().y(),yMax, yMin,50,700);
+			double x=scale(n.getLocation().x(),xMin ,xMax,50,Width-50);
+			double y=scale(n.getLocation().y(),yMax, yMin,100,Height-100);
 
 			Point3D p = new Point3D(x,y);
 
@@ -370,8 +423,8 @@ public class MyGameGUI extends JFrame implements MouseListener{
 			double originalX = ro.getValue().getLocation().x();
 			double originalY = ro.getValue().getLocation().y();
 
-			double scaleX = scale(originalX, xMin ,xMax,30,900);
-			double scaleY = scale(originalY, yMax, yMin,50,700);
+			double scaleX = scale(originalX, xMin ,xMax,50,Width-50);
+			double scaleY = scale(originalY, yMax, yMin,100,Height-100);
 
 			Point3D p1 = new Point3D(scaleX, scaleY);
 			double dist = p1.distance2D(p);

@@ -6,7 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.Hashtable;
 
 
@@ -20,62 +22,91 @@ public class MyDataBase {
 	public static int [][]check; 
 	static Connection connection;
 	static int NumOfGames =0;
-	
-	public static void countGamesPlayed(){ //number of times played, and highest level on
-		try {
-	
-		connection = DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcUserPassword);
-		Statement statement = connection.createStatement();
-		String allCustomersQuery = "SELECT * FROM Logs where userID="+id;
-		ResultSet resultSet = statement.executeQuery(allCustomersQuery);
-	
-		while(resultSet.next())
-		{   
-			NumOfGames++;			
-		}
-		System.out.println("count "+NumOfGames);
-		
-		statement.close();			
-		resultSet.close();
-		
-		connection.close();	
 
-		
+	//counts number of games played with server
+	public static void countGamesPlayed(int id){ //number of times played, and highest level on
+		try {
+			connection = DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcUserPassword);
+			Statement statement = connection.createStatement();
+			String allCustomersQuery = "SELECT * FROM Logs where userID= "+id;
+			ResultSet resultSet = statement.executeQuery(allCustomersQuery);
+
+			while(resultSet.next())
+			{   
+				NumOfGames++;	 //holds number of games played		
+			}
+
+			statement.close();			
+			resultSet.close();
+
+			connection.close();	
+
+
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}
 
 	}
-	
-//	public static int currentLevel(){ //current level on
-//		try {
-//	
-//		connection = DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcUserPassword);
-//		Statement statement = connection.createStatement();
-//		String allCustomersQuery1 = "SELECT levelNum FROM Users where userID="+id;
-//		ResultSet resultSet = statement.executeQuery(allCustomersQuery1);
-//				
-//		statement.close();			
-//		resultSet.close();		
-//		connection.close();	
-//		
-//		return resultSet.getInt("levelNum");
-//		
-//		}catch(SQLException e) {
-//			e.printStackTrace();
-//		}
-//
-//	}
-	
-	public void setPlayerID(int i) {
-		id =i;
+	//best score of current level on
+
+	public static double[] bestScore(Arena a, int id) throws SQLException{ 
+
+
+		double[] tmp = new double[2];
+		connection = DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcUserPassword);
+		Statement statement = connection.createStatement();
+		String allCustomersQuery1 = "SELECT * FROM Logs where userID= ' "+ id + " ' And levelID = ' " + a.getcurrentlevel() +" ' + ' ORDER BY score DESC ' " ;
+		ResultSet resultSet = statement.executeQuery(allCustomersQuery1);
+
+		if(resultSet.next()) {
+
+			tmp[0]= resultSet.getDouble("score");
+			tmp[1]= resultSet.getDouble("moves");
+
+		}
+
+		statement.close();			
+		resultSet.close();		
+		connection.close();	
+
+		return tmp;
+
 	}
-	
+
 	public int getNumOfGames() {
 		return this.NumOfGames;
 	}
-	
-	//System.out.println("Id: " + resultSet.getInt("UserID")+", "+resultSet.getInt("levelID")+", "+resultSet.getInt("moves")+","+resultSet.getDate("time"));
 
-	
+
+	public static HashMap<Integer, String> AllScores(int id) {
+		try {
+			connection = DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcUserPassword);
+			Statement statement = connection.createStatement();
+			String allCustomersQuery1 = "SELECT * FROM Logs as logs inner join (" + "SELECT max(score) as score, levelID FROM Logs"
+					+ " where userID = " + id + " group by levelID" + ") as groupedLogs"
+					+ " on logs.levelID = groupedLogs.levelID and logs.score = groupedLogs.score" + " where userID = " + id
+					+ " order by logs.levelID asc";
+			ResultSet resultSet = statement.executeQuery(allCustomersQuery1);
+
+			
+			HashMap<Integer, String> tmp = new HashMap<Integer, String>();
+
+			while (resultSet.next()) {
+				String value = "" + resultSet.getInt("userID") + "," + resultSet.getInt("levelID") + ","
+						+ resultSet.getInt("moves") + "," + resultSet.getInt("score") + "," + resultSet.getDate("time");
+				tmp.put(resultSet.getInt("levelID"), value);
+			}
+			return tmp;	
+
+			
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+
+	}
+
+
 }

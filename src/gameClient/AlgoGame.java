@@ -15,81 +15,75 @@ public class AlgoGame extends Thread {
 	private Arena arena;
 	private Graph_Algo graphA;
 	private Hashtable <Integer, List<node_data>> roads;
-	private int count=0;
+	private Hashtable <Integer, Fruit> ifFruitTagged;
+	private int count=-1;
+	
 
 	public AlgoGame() {}
 
+	//Initials automatic game from 'board game' built initialized in Arena
 	public AlgoGame(Arena a) 
 	{
 		this.arena = a;
 		this.graphA = new Graph_Algo(arena.getGraph());
 		this.roads = new Hashtable <Integer, List<node_data>>();
+		ifFruitTagged = new Hashtable <Integer, Fruit>();
+		
 		initRoads();
 	}
-
-	public Fruit findTheFruit(Robot r) {
-		double shortestDist = Double.POSITIVE_INFINITY;
-		Fruit get = null;
-		for (int i=0; i<arena.getFruits().size(); i++) {
-			Fruit f = arena.getFruits().get(i);
-			if(f.isTagged() == 1) {
-				continue;
-			}
-			double distance = graphA.shortestPathDist(r.getSrc(), f.getEdge().getSrc());
-			if(distance< shortestDist) {
-				shortestDist= distance;
-				get = f;
-			}
-		}
-		get.setTag(1);
-		return get;
-
-	}
+	
+	//find next position of the robot
 	public void moveRobots(game_service g) {
-		int next =-1;
+		int dest =-1;
 		for (int i=0; i<arena.getRobots().size(); i++) {
 			Robot robot = arena.getRobots().get(i);
-			if(robot!=null && robot.getDest()==-1) {
-				next=nextNode(i);
-				arena.getGame().chooseNextEdge(i, next);						
+			if(robot.getDest()==-1) {
+				dest=nextNode(i);
+				arena.getGame().chooseNextEdge(i, dest);						
 			}
 		}
 	}
-
+	
+	//finds robot's next node according to closest fruit
 	private int nextNode(int id) {
-		if(!arena.getGame().isRunning())
-			return -1;
-		List<node_data> robotRoad=roads.get(id);
+	
 		Robot r= arena.getRobots().get(id);
-		if(robotRoad.isEmpty()==true) {
+		List<node_data> path=roads.get(id);
+		if(path.isEmpty()==true) {
 			synchronized (arena.getFruits()) {
 				if(arena.getFruits().size()>0) {
-					Fruit f=arena.getFruits().get(id);
-					System.out.println("edge is "+f.getEdge());
-					robotRoad=graphA.shortestPath(r.getSrc(), f.getEdge().getSrc());
+					Fruit f=findNearestFruit(r);
+					path=graphA.shortestPath(r.getSrc(), f.getEdge().getSrc());
 					node_data des=arena.getGraph().getNode(f.getEdge().getDest());
-					robotRoad.add(des);
-					roads.put(r.getID(), robotRoad);
+					path.add(des);
+					roads.put(r.getID(), path);
 				}
-
 			}
 		}
 
-		node_data nd = robotRoad.get(0);
-		robotRoad.remove(0);
+		node_data nd = path.get(0);
+		path.remove(0);
 		return nd.getKey();
 
-		//		for (int j = 0; j < robotRoad.size(); j++) {
-		//			node_data curr=robotRoad.get(j);
-		//			robotRoad.remove(j);
-		//			if(curr.getKey()==r.getSrc()) {
-		//				continue;
-		//			}
-		//			return curr.getKey();
-		//		}
-		//		return -1;
+	}
+	
+	//finds the nearest fruit of the given Robot
+	private Fruit findNearestFruit(Robot r) {
+		double minDist = Double.POSITIVE_INFINITY;
+		Fruit wanted = null;
+		System.out.println(arena.getFruits());
+		for (int i=0; i<arena.getFruits().size(); i++) {
+			Fruit fr = arena.getFruits().get(i);
+			double d = graphA.shortestPathDist(r.getSrc(), fr.getEdge().getSrc());
+			if(d<minDist) {
+				minDist =d;
+				wanted = fr;
+			}
+		}
+		return wanted;
 	}
 
+	//the first path of the Robot
 	private void initRoads() {
 		for (int i = 0; i < arena.getRobots().size(); i++) {
 			Robot r=arena.getRobots().get(i);

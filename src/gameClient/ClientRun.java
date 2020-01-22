@@ -24,20 +24,23 @@ public class ClientRun extends Thread {
 
 	private AlgoGame automatic;
 
-	private static int playerID;
+	public static int playerID;
 	private static int num_level=0;
 	private static boolean manGame=false;
 	private game_service game;
+	public MyDataBase id;
 
+	
 	public ClientRun() {
 		arena = new Arena(num_level);
 		win = new MyGameGUI(arena, manGame);
 	}
 
+	
 	@Override
 	public void run() {
 
-		Game_Server.login(336211537);
+		Game_Server.login(playerID);
 		game = arena.getGame();
 		game.startGame();
 
@@ -49,17 +52,22 @@ public class ClientRun extends Thread {
 
 		try {
 
-			int dati = 70;
+			int dati = 100;
 			int check = 0;
+			
 			while(game.isRunning()) {
 				if(!manGame) {
+					dati = 10;
 					automatic.moveRobots(game);
 				}
-				game.move();
 				arena.refresh();
-				if(check % 2 == 0) {
-					win.repaint();
+				
+				if(check % 10 == 0) {
+				game.move();
+				win.repaint();
+			
 				}
+				
 				Thread.sleep(dati);
 				check++;
 			}	
@@ -67,14 +75,10 @@ public class ClientRun extends Thread {
 			e.printStackTrace();
 		}
 
-		log = KML_Logger.getVariable(num_level);
+		log = KML_Logger.getObject(num_level);
 		log.end();
-		game.sendKML(log.getKml());
-		try {
-			this.sleep(15000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		
+
 		KMLlog();
 
 		double score = getScore();
@@ -89,10 +93,12 @@ public class ClientRun extends Thread {
 		int result = JOptionPane.showConfirmDialog(win, "Write to KML?");
 		if(result == 0) {
 			log.export();
+			game.sendKML(log.getKml());
 		}
 
 	}
 
+	//first windows to open, initializes game from the information the player gives here
 	private static void init() {
 		JFrame frame = new JFrame();
 		frame.setBounds(200, 0, 500, 500);
@@ -100,12 +106,14 @@ public class ClientRun extends Thread {
 
 			String[] mode = { "Manual", "Automatic" };
 
+			String pID= JOptionPane.showInputDialog(frame, "Please insert ID");
 			int m = JOptionPane.showOptionDialog(frame, "Choose option", "The Maze of Waze",
 					JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, mode, mode[1]);
 			String lev = JOptionPane.showInputDialog(frame, "Please insert level number [0-23]");
 
-
+			playerID = Integer.parseInt(pID);
 			num_level = Integer.parseInt(lev);
+			
 
 			if (num_level > 23 || num_level < 0)
 				throw new RuntimeException();
@@ -159,7 +167,7 @@ public class ClientRun extends Thread {
 		return automatic;
 	}
 
-	public int getPlayerID() {
+	public static int getPlayerID() {
 		return playerID;
 	}
 

@@ -86,7 +86,7 @@ public class Fruit {
 	}
 	// Returns string version of Robot
 	public String toString() {
-		return "value" + this.value;
+		return "Fruit " + this.edge;
 	}
 
 
