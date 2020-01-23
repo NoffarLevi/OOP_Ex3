@@ -14,7 +14,7 @@ There are three packages we carried on from the previous project
 * dataStructure
 * utils
 
-There are two packages we created during this project
+There is one package we created during this project
 
 * gameClient - Contains six classes -> AlgoGame, Arena, ClientRun, Fruit, Robot, KML_Logger, MyGameGui
 
