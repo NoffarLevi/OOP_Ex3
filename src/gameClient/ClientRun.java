@@ -40,7 +40,7 @@ public class ClientRun extends Thread {
 	@Override
 	public void run() {
 
-	//	Game_Server.login(playerID);
+		Game_Server.login(playerID);
 		game = arena.getGame();
 		game.startGame();
 
@@ -52,7 +52,7 @@ public class ClientRun extends Thread {
 
 		try {
 
-			int dati = 60;
+			int dati = 20;
 			int check = 0;
 			
 			while(game.isRunning()) {
