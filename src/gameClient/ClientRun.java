@@ -52,7 +52,7 @@ public class ClientRun extends Thread {
 
 		try {
 
-			int dati = 20;
+			int dati = 60;
 			int check = 0;
 			
 			while(game.isRunning()) {
@@ -114,7 +114,7 @@ public class ClientRun extends Thread {
 			playerID = Integer.parseInt(pID);
 			num_level = Integer.parseInt(lev);
 			
-
+			
 			if (num_level > 23 || num_level < 0 )
 				throw new RuntimeException();
 

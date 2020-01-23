@@ -31,11 +31,14 @@ public class Arena {
 	//Initiates arena with the level the server entered
 	public Arena(int num_level) {
 		currentlevel = num_level; 
+		
 		kml = KML_Logger.getObject(num_level); // initiate KML
 		game = Game_Server.getServer(num_level);
+
 		grGame = new DGraph();
 		grGame.init(game.getGraph());
 		GraphToKML();
+		
 		fruits= new ArrayList<Fruit>();
 		robots = new Hashtable<Integer,Robot>(); //Integer is robot id
 		fruitsInit();

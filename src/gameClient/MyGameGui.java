@@ -152,19 +152,6 @@ public class MyGameGUI extends JFrame implements MouseListener{
 		}
 	}
 
-
-	//
-	//	private void showGameStatus() {
-	//		String[] columnNames = {"ID ",
-	//				"Position ", "Level" , "Score "
-	//		};
-	//		
-	//		
-	//
-	//		Object[][] data = MyDataBase.AllScores();
-	//	}
-
-
 	private void allMyGames() {
 
 		int id = ClientRun.getPlayerID();
@@ -178,6 +165,7 @@ public class MyGameGUI extends JFrame implements MouseListener{
 		for (String column : columnNames) {
 			table.addColumn(column);
 		}
+		
 		HashMap<Integer, String> result  =  MyDataBase.AllScores(id);
 
 		for (Entry<Integer, String> value : result.entrySet()) {
@@ -194,9 +182,31 @@ public class MyGameGUI extends JFrame implements MouseListener{
 	}
 	private void showGameStatus() {
 
+		int id = ClientRun.getPlayerID();
+		HashMap<Integer, String> result  =  MyDataBase.AllScores(id);
+		
+		String[] columnNames = { "UserID", "LevelID", "Rank"};
+		JFrame frame1 = new JFrame("Ranks of Each Level Played" );
+		frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame1.setLayout(new BorderLayout());
+		DefaultTableModel table = new DefaultTableModel();
+		for (String column : columnNames) {
+			table.addColumn(column);
+		}
+		
+		HashMap<Integer, String> myRanks = MyDataBase.AllScoresRanked(id,result);
+		
+		for (Entry<Integer, String> value : myRanks.entrySet()) {
+			table.addRow(value.getValue().split(","));
+		}
 
-
-
+		JTable Table = new JTable(table);
+		JScrollPane sc = new JScrollPane(Table);
+		sc.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		sc.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		frame1.add(sc);
+		frame1.setSize(500, 350);
+		frame1.setVisible(true);
 
 
 	}
