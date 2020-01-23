@@ -22,7 +22,7 @@ There are two packages we created during this project
 - first insert your ID:  
 ![](https://github.com/NoffarLevi/OOP_Ex3/blob/master/imgs/id.png)
 
-- Than choose what game you wish to play Manual or Automatic  
+- Then choose what game you wish to play Manual or Automatic  
 ![](https://github.com/NoffarLevi/OOP_Ex3/blob/master/imgs/mode.png)
 
 - Your're almost there just choose the level you wish to play (from 0 to 23):  
