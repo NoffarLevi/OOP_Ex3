@@ -40,7 +40,7 @@ public class ClientRun extends Thread {
 	@Override
 	public void run() {
 
-		Game_Server.login(playerID);
+	//	Game_Server.login(playerID);
 		game = arena.getGame();
 		game.startGame();
 
@@ -52,7 +52,7 @@ public class ClientRun extends Thread {
 
 		try {
 
-			int dati = 100;
+			int dati = 20;
 			int check = 0;
 			
 			while(game.isRunning()) {
@@ -62,7 +62,7 @@ public class ClientRun extends Thread {
 				}
 				arena.refresh();
 				
-				if(check % 10 == 0) {
+				if(check % 9 == 0) {
 				game.move();
 				win.repaint();
 			
@@ -115,7 +115,7 @@ public class ClientRun extends Thread {
 			num_level = Integer.parseInt(lev);
 			
 
-			if (num_level > 23 || num_level < 0)
+			if (num_level > 23 || num_level < 0 )
 				throw new RuntimeException();
 
 			manGame = false;

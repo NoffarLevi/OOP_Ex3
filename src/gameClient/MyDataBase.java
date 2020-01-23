@@ -107,6 +107,10 @@ public class MyDataBase {
 		return null;
 
 	}
+	
+	public static HashMap<Integer, String> AllScoresRanked(int id) {
+		return null;
+	}
 
 
 }

@@ -10,7 +10,7 @@ import algorithms.Graph_Algo;
 import dataStructure.graph;
 import dataStructure.node_data;
 
-public class AlgoGame extends Thread {
+public class AlgoGame {
 
 	private Arena arena;
 	private Graph_Algo graphA;
@@ -71,7 +71,6 @@ public class AlgoGame extends Thread {
 	private Fruit findNearestFruit(Robot r) {
 		double minDist = Double.POSITIVE_INFINITY;
 		Fruit wanted = null;
-		System.out.println(arena.getFruits());
 		for (int i=0; i<arena.getFruits().size(); i++) {
 			Fruit fr = arena.getFruits().get(i);
 			double d = graphA.shortestPathDist(r.getSrc(), fr.getEdge().getSrc());

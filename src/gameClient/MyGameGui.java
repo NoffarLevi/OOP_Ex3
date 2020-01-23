@@ -100,7 +100,6 @@ public class MyGameGUI extends JFrame implements MouseListener{
 		file.add(status2);
 
 		if(manGame) {
-			System.out.println("isManual");
 			this.addMouseListener(this);
 		}
 
@@ -124,82 +123,82 @@ public class MyGameGUI extends JFrame implements MouseListener{
 	}
 
 	private void showMyStatus() {
-		
+
 		try {
-		JFrame frame = new JFrame();
-		frame.setBounds(200, 0, 500, 300);
-		frame.setLayout(new GridLayout(3,1));
+			JFrame frame = new JFrame();
+			frame.setBounds(200, 0, 500, 300);
+			frame.setLayout(new GridLayout(3,1));
 
-		int id = ClientRun.getPlayerID();
-		MyDataBase.countGamesPlayed(id);
-		double[] score = MyDataBase.bestScore(arena,id);
+			int id = ClientRun.getPlayerID();
+			MyDataBase.countGamesPlayed(id);
+			double[] score = MyDataBase.bestScore(arena,id);
 
-		JLabel totalGames = new JLabel("Total of games played: "+ MyDataBase.NumOfGames);
-		JLabel currentLevel = new JLabel("Current Level on:  "+arena.getcurrentlevel());
-		JLabel bestScore = new JLabel("Your best score for level "+arena.getcurrentlevel()+" is "+score[0]+" with "+(int)score[1]+" moves" );
+			JLabel totalGames = new JLabel("Total of games played: "+ MyDataBase.NumOfGames);
+			JLabel currentLevel = new JLabel("Current Level on:  "+arena.getcurrentlevel());
+			JLabel bestScore = new JLabel("Your best score for level "+arena.getcurrentlevel()+" is "+score[0]+" with "+(int)score[1]+" moves" );
 
-		totalGames.setFont(new Font("Arial",Font.BOLD,15));
-		currentLevel.setFont(new Font("Arial",Font.BOLD,15));
-		bestScore.setFont(new Font("Arial",Font.BOLD,15));
+			totalGames.setFont(new Font("Arial",Font.BOLD,15));
+			currentLevel.setFont(new Font("Arial",Font.BOLD,15));
+			bestScore.setFont(new Font("Arial",Font.BOLD,15));
 
-		frame.add(currentLevel);
-		frame.add(totalGames);
-		frame.add(bestScore);
+			frame.add(currentLevel);
+			frame.add(totalGames);
+			frame.add(bestScore);
 
-		frame.setVisible(true);
-		
+			frame.setVisible(true);
+
 		}catch(SQLException error) {
 			JOptionPane.showMessageDialog(this,error.getMessage(),"Error", JOptionPane.ERROR_MESSAGE );
 		}
 	}
 
 
-//
-//	private void showGameStatus() {
-//		String[] columnNames = {"ID ",
-//				"Position ", "Level" , "Score "
-//		};
-//		
-//		
-//
-//		Object[][] data = MyDataBase.AllScores();
-//	}
+	//
+	//	private void showGameStatus() {
+	//		String[] columnNames = {"ID ",
+	//				"Position ", "Level" , "Score "
+	//		};
+	//		
+	//		
+	//
+	//		Object[][] data = MyDataBase.AllScores();
+	//	}
 
-	
+
 	private void allMyGames() {
-		
-		int id = ClientRun.getPlayerID();
-		
-		
-        String[] columnNames = { "UserID", "LevelID", "moves", "score", "time" };
-        JFrame frame1 = new JFrame("Highest Scores of Each Level Played" );
-        frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame1.setLayout(new BorderLayout());
-        DefaultTableModel tableModel = new DefaultTableModel();
-        for (String columnName : columnNames) {
-            tableModel.addColumn(columnName);
-        }
-        HashMap<Integer, String> result  =  MyDataBase.AllScores(id);
-    
-        for (Entry<Integer, String> value : result.entrySet()) {
-            tableModel.addRow(value.getValue().split(","));
-        }
 
-        JTable table = new JTable(tableModel);
-        JScrollPane scroll = new JScrollPane(table);
-        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        frame1.add(scroll);
-        frame1.setSize(500, 350);
-        frame1.setVisible(true);
-    }
+		int id = ClientRun.getPlayerID();
+
+
+		String[] columnNames = { "UserID", "LevelID", "moves", "score", "time" };
+		JFrame frame1 = new JFrame("Highest Scores of Each Level Played" );
+		frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame1.setLayout(new BorderLayout());
+		DefaultTableModel table = new DefaultTableModel();
+		for (String column : columnNames) {
+			table.addColumn(column);
+		}
+		HashMap<Integer, String> result  =  MyDataBase.AllScores(id);
+
+		for (Entry<Integer, String> value : result.entrySet()) {
+			table.addRow(value.getValue().split(","));
+		}
+
+		JTable Table = new JTable(table);
+		JScrollPane sc = new JScrollPane(Table);
+		sc.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		sc.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		frame1.add(sc);
+		frame1.setSize(500, 350);
+		frame1.setVisible(true);
+	}
 	private void showGameStatus() {
-		
-		
-		
-		
-		
-		
+
+
+
+
+
+
 	}
 	public void paint(Graphics g)
 	{
@@ -256,18 +255,20 @@ public class MyGameGUI extends JFrame implements MouseListener{
 
 	private void drawFruit(Graphics2D g) {
 		//paint fruits
-		for (Fruit f : arena.getFruits()) {
-			int x= (int)scale(f.getLocation().x(),xMin ,xMax,50,Width-50);
-			int y= (int)scale(f.getLocation().y(),yMax ,yMin,100,Height-100);
+		synchronized(arena.getFruits()) {
+			for (Fruit f : arena.getFruits()) {
+				int x= (int)scale(f.getLocation().x(),xMin ,xMax,50,Width-50);
+				int y= (int)scale(f.getLocation().y(),yMax ,yMin,100,Height-100);
 
-			if(f.getType()==1) {
-				g.drawImage(apple, x-7, y-7, this);
+				if(f.getType()==1) {
+					g.drawImage(apple, x-7, y-7, this);
 
-			}
-			else {
+				}
+				else {
 
-				g.drawImage(banana, (int)x-7, (int)y-7,this);
+					g.drawImage(banana, (int)x-7, (int)y-7,this);
 
+				}
 			}
 		}
 	}

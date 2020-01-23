@@ -35,13 +35,13 @@ public class Arena {
 		game = Game_Server.getServer(num_level);
 		grGame = new DGraph();
 		grGame.init(game.getGraph());
-
+		GraphToKML();
 		fruits= new ArrayList<Fruit>();
 		robots = new Hashtable<Integer,Robot>(); //Integer is robot id
 		fruitsInit();
 		setPositionRo();
 		robotsInit();
-		//	NodesToKML();
+		
 	}
 	
 	//adds placemarks of nodes and edges to kml
