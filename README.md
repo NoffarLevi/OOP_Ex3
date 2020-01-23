@@ -16,7 +16,7 @@ There are three packages we carried on from the previous project
 
 There is one package we created during this project
 
-* gameClient - Contains six classes -> AlgoGame, Arena, ClientRun, Fruit, Robot, KML_Logger, MyGameGui
+* gameClient - Contains seven classes -> AlgoGame, Arena, ClientRun, Fruit, Robot, KML_Logger, MyGameGui, MyDataBase
 
 ### So how to play the maze of WAZE?
 - first insert your ID:  
